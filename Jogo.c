@@ -7,13 +7,8 @@ typedef struct Position{
 
 int x;
 int y;
-<<<<<<< HEAD
 int xTela; /// necessário,porque o x e o y são respectivos à matriz,não à tela
 int yTela;
-=======
-int xDobrado;
-int yDobrado;
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
 
 }Position;
 
@@ -22,7 +17,6 @@ typedef struct game{
 char matriz_jogo[11][27];
 Position position;
 char nome_mapa[10];
-
 
 }TIPO_JOGO;
 
@@ -40,18 +34,24 @@ typedef struct rato {
 int posXinicial;
 int posYinicial; /// inicial na matriz
 Position position;
-int status; /// 1 = vivo; 2 = morto(retornar posiÃ§Ã£o original)
+int status; /// 1 = vivo; 2 = morto(retornar posição original)
 
 }TIPO_RATO;
 
 typedef struct gatos{
 
-int posXinicial; /// como serÃ£o 4 gatos,teremos 4 posiÃ§Ãµes
+int posXinicial; /// como serão 4 gatos,teremos 4 posições
 int posYinicial;
 Position position;
-int status; /// 1 = vivo; 2 = morto(retornar posiÃ§Ã£o original)
+int status; /// 1 = vivo; 2 = morto(retornar posição original)
 
 }TIPO_GATO;
+
+typedef struct portas{
+
+Position position;
+int nPortas; /// vai de 0 à "nportas",pois usaremos como argumento do vetor portas
+}TIPO_PORTA;
 
 void hideCursor()
 {
@@ -73,7 +73,6 @@ void desenha_rect(int posX,int posY,char cor_fundo,char cor_texto){
 
 void move_rato(int y,int x,TIPO_JOGO *game,TIPO_RATO *rato)
 {
-<<<<<<< HEAD
 
      desenha_rect(rato->position.xTela,rato->position.yTela,BLACK,BLACK);
 
@@ -107,24 +106,12 @@ void move_rato(int y,int x,TIPO_JOGO *game,TIPO_RATO *rato)
     game->matriz_jogo[rato->position.y][rato->position.x] = ' ';
     rato->position.x = x; /// posição na matriz(mais ou menos 1)
     rato->position.y = y;
-=======
-    desenha_rect(rato->position.x+21,rato->position.y+6,BLACK,BLACK);
-
-    game->matriz_jogo[rato->position.y][rato->position.x] = ' ';
-
-    rato->position.x = x; /// posiÃ§Ã£o na matriz(mais ou menos 1)
-    rato->position.y = y;
-
-
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
     game->matriz_jogo[rato->position.y][rato->position.x] = 'M';
-    desenha_rect((rato->position.xDobrado+21),(rato->position.yDobrado+6),WHITE,BLACK);
 
     desenha_rect(rato->position.xTela,rato->position.yTela,WHITE,BLACK);
 
 
 }
-
 
 int RecebeDirecao()
  {
@@ -132,27 +119,7 @@ int RecebeDirecao()
     int direction;
     fflush(stdin);
 
-/*
-  a = getch();
 
-		//for detect the function\arrow keys
-		//we must call the getch() again
-		//testing if a is '0' or '0xE0'
-		if (a==0 || a==0xE0)
-            a=getch();
-
-		if (a==27) //ESC for exit the 'while'
-		   direction = 5;
-		else if (a==72)
-            direction =3;
-		else if (a==80)
-			 direction = 4;
-		else if (a==75)
-            direction = 2;
-		else if (a==77)
-			 direction = 1;
-
-*/
         char ch;
             ch = getch();
 
@@ -174,14 +141,8 @@ int RecebeDirecao()
                 case 'S': direction=4;
                         break;
 
-<<<<<<< HEAD
                case 27:  direction =5;
                          break;
-=======
-               case 'Q':
-               case 'q': direction=5;
-                        break;
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
 
                default:break;
 
@@ -191,8 +152,7 @@ int RecebeDirecao()
 
 }
 
-
-void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato)
+void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato,TIPO_PORTA *portas)
 {
 
     FILE *mapa;
@@ -200,6 +160,8 @@ void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato)
     int coluna = 0;
     int linha = 0;
     int nGatos=0;
+    portas->nPortas = 0;
+
 
         if(!(mapa = fopen("nivel01.txt","r")))       /// must found a way to change the level name mid-game and read it again as we pass through a new level
             printf("erro na abertura do arquivo");
@@ -216,8 +178,8 @@ void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato)
                             rato->posYinicial = linha;
                             rato->position.x = coluna;
                             rato->position.y = linha;
-                            rato->position.xTela = coluna+21;
-                            rato->position.yTela = linha+6;
+                            rato->position.xTela = coluna + 21 ;
+                            rato->position.yTela = linha + 6 ;
                             game->matriz_jogo[rato->position.y][rato->position.x]= buf;
                             coluna++;
                             break;
@@ -245,6 +207,11 @@ void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato)
                             break;
 
                 case 'T':   game->matriz_jogo[linha][coluna]= buf;
+                            portas[portas->nPortas].position.x = coluna;
+                            portas[portas->nPortas].position.y = linha;
+                            portas[portas->nPortas].position.xTela = coluna + 21 ;
+                            portas[portas->nPortas].position.yTela = linha + 6 ;
+                            portas->nPortas += 1;
                             coluna++;
                             break;
 
@@ -261,11 +228,11 @@ void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato)
 
 }
 
-
 void desenha_mapa(TIPO_JOGO *game)
 {
     int x0=20;  /// Initial X of screen
     int y0=5;  /// Initial Y of screen
+
 
         for(int i=0;i<11;i++)
         {
@@ -359,42 +326,26 @@ int newY;
     case 1:
             newX = rato->position.x+1;
             newY = rato->position.y;
-            rato->position.xDobrado = rato->position.x+2;
-            rato->position.yDobrado = rato->position.y;
             break;
 
     ///esquerda
     case 2:
             newX = rato->position.x-1;
             newY = rato->position.y;
-            rato->position.xDobrado = rato->position.x-2;
-            rato->position.yDobrado = rato->position.y;
             break;
     /// cima
     case 3:
             newX = rato->position.x;
             newY = rato->position.y -1;
-<<<<<<< HEAD
-=======
-            rato->position.xDobrado = rato->position.x;
-            rato->position.yDobrado = rato->position.y-2;
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
             break;
     ///baixo
     case 4:
              newX = rato->position.x;
              newY = rato->position.y+1;
-<<<<<<< HEAD
-=======
-             rato->position.xDobrado = rato->position.x;
-             rato->position.yDobrado = rato->position.y+2;
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
              break;
 
     case 5: newX = rato->position.x;
             newY = rato->position.y;
-            rato->position.xDobrado = rato->position.x;
-            rato->position.yDobrado = rato->position.y;
             movendo = false;
             break;
 
@@ -407,45 +358,90 @@ int newY;
 
 
 
+char recebe_teclado_letras()
+{
+
+
+    char ch;
+    fflush(stdin);
+        ch = getch();
+        //ch = tolower(ch);
+
+        switch(ch)
+        {
+
+            case 'b': ///ModificaPortas
+                break;
+            //case 'B':
+
+
+            case 'p': ///PausaGame()
+            break;
+
+
+            case 9:  /// Apresenta o menu do jogo (TAB)
+                break;
+
+
+
+
+
+        }
+
+
+
+
+
+
+}
+
+void modifica_portas(TIPO_JOGO *game,TIPO_PORTA portas[])
+{
+    char temp_portas[8];
+
+    for(int i=0;i < portas->nPortas;i++)
+    {
+        //temp_portas[i] = game->matriz_jogo[portas[i].position.y+1,portas[i].position.x+1]; /// salvo oque tinha no lugar novo da porta
+
+
+        //game->matriz_jogo[portas[i].position.y,portas[i].position.x];
+       // game->matriz_jogo[portas[i].position.y,portas[i].position.x] = ' ' ; /// onde havia portas,vazio agora
+
+
+    }
+}
+
+
 int main(){
 
 
 TIPO_GATO gatos[4];
+TIPO_PORTA portas[8];
 TIPO_JOGADOR player;
 TIPO_JOGO game;
 TIPO_RATO rato;
 Position position;
 
-<<<<<<< HEAD
 
-le_mapa(gatos,&game,&rato);
+le_mapa(gatos,&game,&rato,portas);
 desenha_mapa(&game);
 hideCursor();
 
 
       atualiza_rato(&rato,&game);
+
+
+
+
       ///atualiza_jogo();
       ///recordes();
+
 
     /*
 
 
-=======
-int teste=1;
-int i=0;
-
-le_mapa(gatos,&game,&rato);    /// you pass the address of the structure as parameter,because you want the whole thing as a localization point
-desenha_mapa(&game);
-
-//hideCursor();
-//system("mode con:cols=105 lines=30"); // delimitador do tamaho da tela (cols = colunas, lines = linhas)
 
 
-  atualiza_rato(&rato,&game);
-
-
-    clrscr();
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
     for(int i=0;i<11;i++)
     {
         for(int j=0;j<27;j++)
@@ -455,17 +451,10 @@ desenha_mapa(&game);
             printf("\n");
 
     }
-<<<<<<< HEAD
    // printf(" x: %d y: %d",rato.position.x,rato.position.y);
 
         */
-=======
-    printf(" x: %d y: %d",rato.position.x,rato.position.y);
-
->>>>>>> 3e04ee8125bb2aab2f26a56aa601ae8ac4505088
 
 
 return 0;
 }
-
-      
