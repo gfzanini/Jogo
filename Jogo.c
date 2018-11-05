@@ -16,7 +16,7 @@ typedef struct game{
 
 char matriz_jogo[11][27];
 Position position;
-char nome_mapa[10];
+/// char nome_mapa[10];
 
 }TIPO_JOGO;
 
@@ -51,6 +51,9 @@ typedef struct portas{
 
 Position position;
 int nPortas; /// vai de 0 à "nportas",pois usaremos como argumento do vetor portas
+int status;
+char temp_portas[8]; /// 0 = fechada 1 = aberta
+
 }TIPO_PORTA;
 
 void hideCursor()
@@ -152,7 +155,7 @@ int RecebeDirecao()
 
 }
 
-void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato,TIPO_PORTA *portas)
+void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato,TIPO_PORTA portas[])
 {
 
     FILE *mapa;
@@ -209,9 +212,10 @@ void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato,TIPO_PORTA *porta
                 case 'T':   game->matriz_jogo[linha][coluna]= buf;
                             portas[portas->nPortas].position.x = coluna;
                             portas[portas->nPortas].position.y = linha;
-                            portas[portas->nPortas].position.xTela = coluna + 21 ;
-                            portas[portas->nPortas].position.yTela = linha + 6 ;
+                            portas[portas->nPortas].position.xTela = coluna*2 + 20 ;
+                            portas[portas->nPortas].position.yTela = linha*2 + 5 ;
                             portas->nPortas += 1;
+                            portas[portas->nPortas].status = 0;
                             coluna++;
                             break;
 
@@ -228,7 +232,7 @@ void le_mapa(TIPO_GATO gatos[],TIPO_JOGO *game,TIPO_RATO *rato,TIPO_PORTA *porta
 
 }
 
-void desenha_mapa(TIPO_JOGO *game)
+void desenha_mapa(TIPO_JOGO *game,TIPO_PORTA *portas)
 {
     int x0=20;  /// Initial X of screen
     int y0=5;  /// Initial Y of screen
@@ -266,11 +270,13 @@ void desenha_mapa(TIPO_JOGO *game)
                                 break;
 
 
-                    case 'G':   desenha_rect(x0,y0,RED,BLACK);
+                    case 'G':   desenha_rect(x0,y0,LIGHTRED,BLACK);
                                 x0+=2;
                                 break;
 
-                    case 'T':   desenha_rect(x0,y0,DARKGRAY,BLACK); /// COR?
+                    case 'T':   desenha_rect(x0,y0,DARKGRAY,BLACK);
+                                portas[portas->nPortas].position.xTela = x0;
+                                portas[portas->nPortas].position.yTela = y0;
                                 x0+=2;
                                 break;
                }
@@ -356,9 +362,28 @@ int newY;
 
 }
 
+void modifica_portas(TIPO_JOGO *game,TIPO_PORTA portas[])
+{
 
+int i;
 
-char recebe_teclado_letras()
+    for(i=0;i < portas->nPortas; i++)
+    {
+
+        portas[i].temp_portas[i] = game->matriz_jogo[portas[i].position.y+1][portas[i].position.x+1]; /// salvo oque tinha no lugar novo da porta
+        game->matriz_jogo[portas[i].position.y][portas[i].position.x] = ' ';
+        portas[i].position.y +=1;
+        portas[i].position.x +=1;
+        game->matriz_jogo[portas[i].position.y][portas[i].position.x] = 'T';
+        desenha_rect(portas[i].position.xTela,portas[i].position.yTela,BLACK,BLACK);
+        portas[i].position.xTela +=2;
+        portas[i].position.yTela +=2;
+        desenha_rect(portas[i].position.xTela,portas[i].position.yTela,DARKGRAY,BLACK);
+
+    }
+}
+
+void recebe_teclado_letras(TIPO_JOGO *game,TIPO_PORTA portas[])
 {
 
 
@@ -370,7 +395,7 @@ char recebe_teclado_letras()
         switch(ch)
         {
 
-            case 'b': ///ModificaPortas
+            case 'b': modifica_portas(game,portas);
                 break;
             //case 'B':
 
@@ -383,33 +408,12 @@ char recebe_teclado_letras()
                 break;
 
 
-
-
-
         }
 
 
 
-
-
-
 }
 
-void modifica_portas(TIPO_JOGO *game,TIPO_PORTA portas[])
-{
-    char temp_portas[8];
-
-    for(int i=0;i < portas->nPortas;i++)
-    {
-        //temp_portas[i] = game->matriz_jogo[portas[i].position.y+1,portas[i].position.x+1]; /// salvo oque tinha no lugar novo da porta
-
-
-        //game->matriz_jogo[portas[i].position.y,portas[i].position.x];
-       // game->matriz_jogo[portas[i].position.y,portas[i].position.x] = ' ' ; /// onde havia portas,vazio agora
-
-
-    }
-}
 
 
 int main(){
@@ -424,23 +428,19 @@ Position position;
 
 
 le_mapa(gatos,&game,&rato,portas);
-desenha_mapa(&game);
+desenha_mapa(&game,portas);
 hideCursor();
-
-
-      atualiza_rato(&rato,&game);
-
-
+//atualiza_rato(&rato,&game);
+modifica_portas(&game,portas);
 
 
       ///atualiza_jogo();
       ///recordes();
 
 
-    /*
 
-
-
+            printf("\n");
+            printf("\n");
 
     for(int i=0;i<11;i++)
     {
@@ -453,7 +453,7 @@ hideCursor();
     }
    // printf(" x: %d y: %d",rato.position.x,rato.position.y);
 
-        */
+
 
 
 return 0;
