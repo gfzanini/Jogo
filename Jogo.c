@@ -24,7 +24,6 @@ typedef struct player{
 
 char nome[30];
 int score;
-int vidas;
 int status; /// 1 = vivo; 0 = morto ; talvez algum status de poder
 
 }TIPO_JOGADOR;
@@ -35,6 +34,7 @@ int posXinicial;
 int posYinicial; /// inicial na matriz
 Position position;
 int status; /// 1 = vivo; 2 = morto(retornar posição original)
+int vidas;
 
 }TIPO_RATO;
 
@@ -355,10 +355,11 @@ int newY;
             movendo = false;
             break;
 
+    default:break;
+
         } /// switch
        checkPosition(newY,newX,game,rato);
-    } /// while
-
+    }
 
 }
 
@@ -414,6 +415,15 @@ void recebe_teclado_letras(TIPO_JOGO *game,TIPO_PORTA portas[])
 
 }
 
+void GAME(TIPO_RATO *rato,TIPO_JOGO *game,TIPO_PORTA portas[])
+{
+
+    atualiza_rato(rato,game);
+
+    recebe_teclado_letras(game,portas);
+
+}
+
 
 
 int main(){
@@ -430,7 +440,12 @@ Position position;
 le_mapa(gatos,&game,&rato,portas);
 desenha_mapa(&game,portas);
 hideCursor();
-//atualiza_rato(&rato,&game);
+
+
+//GAME(&rato,&game,portas);
+
+
+atualiza_rato(&rato,&game);
 modifica_portas(&game,portas);
 
 
@@ -439,6 +454,7 @@ modifica_portas(&game,portas);
 
 
 
+/*
             printf("\n");
             printf("\n");
 
@@ -452,7 +468,7 @@ modifica_portas(&game,portas);
 
     }
    // printf(" x: %d y: %d",rato.position.x,rato.position.y);
-
+*/
 
 
 
